@@ -7,6 +7,7 @@ from random import randint
 import tensorflow as tf
 import numpy as np
 import datetime
+import os
 
 
 class Model(tf.keras.Model):
@@ -110,8 +111,10 @@ class Model(tf.keras.Model):
 		layer3_pool = tf.nn.max_pool(layer3_elu, self.layer3_pool_ksize, self.layer3_pool_stride, 'SAME')
 
 		# Filter 4
-		layer4_convolution = tf.nn.conv2d(layer3_pool, self.filter4, self.stride4, 'SAME')
-		#layer4_convolution = conv2d(layer3_pool, self.filter4, self.stride4, 'SAME')
+		if is_testing is True:
+			layer4_convolution = tf.nn.conv2d(layer3_pool, self.filter4, self.stride4, 'SAME')
+		else:
+			layer4_convolution = tf.nn.conv2d(layer3_pool, self.filter4, self.stride4, 'SAME')
 		mean4, variance4 = tf.nn.moments(layer4_convolution, axes = self.batch_moments)
 		layer4_norm = tf.nn.batch_normalization(layer4_convolution, mean4, variance4, offset=None, scale=None, variance_epsilon = self.batch_normalization_varience)
 		layer4_relu = tf.nn.leaky_relu(layer4_norm, alpha = self.relu_alpha) 
@@ -246,6 +249,16 @@ def visualize_results(image_inputs, probabilities, image_labels, first_label, se
 
 def main():
     
+	# Current Working Directory
+	cwd = os.getcwd()
+	print(cwd)
+    
+	# List all of the Files in the Current Working Directory 
+	search_path = '.'   # set your path here.
+	root, dirs, files = next(os.walk(search_path), ([],[],[]))
+	sub_root, sub_dirs, sub_files = next(os.walk('data'), ([],[],[]))    
+	print(sub_files)    
+    
 	# Print Current Time
 	start_time = datetime.datetime.utcnow()
 	print('\nStart Time = ', start_time)
@@ -253,7 +266,7 @@ def main():
 	# Load in Test and Train Data from Data Folder
 	cat_class = 3
 	dog_class = 5
-	test_inputs, test_labels = get_data('data/test', cat_class, dog_class)
+	test_inputs, test_labels = get_data('data/train', cat_class, dog_class)
 	train_inputs, train_labels = get_data('data/train', cat_class, dog_class)
 
 	# Initiate the Model
