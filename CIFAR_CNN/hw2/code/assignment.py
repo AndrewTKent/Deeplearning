@@ -10,6 +10,56 @@ import datetime
 import os
 
 
+def main():
+    
+	# Current Working Directory
+	cwd = os.getcwd()
+    
+	# List all of the Files in the Current Working Directory 
+	search_path = '.'   # set your path here.
+	root, dirs, files = next(os.walk(search_path), ([],[],[]))
+	sub_root, sub_dirs, sub_files = next(os.walk('data'), ([],[],[]))      
+    
+	# Print Current Time
+	start_time = datetime.datetime.utcnow()
+	print('\nStart Time = ', start_time)
+    
+	# Load in Test and Train Data from Data Folder
+	cat_class = 3
+	dog_class = 5
+	test_inputs, test_labels = get_data('data/train', cat_class, dog_class)
+	train_inputs, train_labels = get_data('data/train', cat_class, dog_class)
+
+	# Initiate the Model
+	model = Model()
+
+	# Initie Training. Announce Accuracy and Epoch Values
+	for epoch in range(0, model.epoch):
+            
+		print("\n       -------------     EPOCH {}     -------------       ".format(epoch))
+		train(model, train_inputs, train_labels)
+	print("\n   -------------     ALL EPOCHS END     -------------    \n")
+
+	test_accuracy = test(model, test_inputs, test_labels)
+	print("\nAccuracy on test set is: {}".format(test_accuracy), '\n')
+
+	# Visualize 10 Random Images
+	num_test = test_inputs.shape[0]
+	random_num = randint(0, num_test - 10)
+	sample_inputs = test_inputs[random_num : 10 + random_num]
+	sample_labels = test_labels[random_num : 10 + random_num]
+	sample_logits = model.call(sample_inputs, sample_labels)
+	visualize_results(sample_inputs, sample_logits, sample_labels, 'cat', 'dog')
+    
+	# Print Current Time and Other Parameters
+	end_time = datetime.datetime.utcnow()
+	print('End Time = ', end_time)
+	print('\nTime Difference = ', end_time - start_time)
+	print('\nLearning Rate = ', model.learning_rate)
+	print('\nRelu Alpha = ', model.relu_alpha)
+
+
+
 class Model(tf.keras.Model):
 	def __init__(self):
         
@@ -247,53 +297,6 @@ def visualize_results(image_inputs, probabilities, image_labels, first_label, se
 	plt.show()
 
 
-def main():
-    
-	# Current Working Directory
-	cwd = os.getcwd()
-    
-	# List all of the Files in the Current Working Directory 
-	search_path = '.'   # set your path here.
-	root, dirs, files = next(os.walk(search_path), ([],[],[]))
-	sub_root, sub_dirs, sub_files = next(os.walk('data'), ([],[],[]))      
-    
-	# Print Current Time
-	start_time = datetime.datetime.utcnow()
-	print('\nStart Time = ', start_time)
-    
-	# Load in Test and Train Data from Data Folder
-	cat_class = 3
-	dog_class = 5
-	test_inputs, test_labels = get_data('data/train', cat_class, dog_class)
-	train_inputs, train_labels = get_data('data/train', cat_class, dog_class)
-
-	# Initiate the Model
-	model = Model()
-
-	# Initie Training. Announce Accuracy and Epoch Values
-	for epoch in range(0, model.epoch):
-            
-		print("\n       -------------     EPOCH {}     -------------       ".format(epoch))
-		train(model, train_inputs, train_labels)
-	print("\n   -------------     ALL EPOCHS END     -------------    \n")
-
-	test_accuracy = test(model, test_inputs, test_labels)
-	print("\nAccuracy on test set is: {}".format(test_accuracy), '\n')
-
-	# Visualize 10 Random Images
-	num_test = test_inputs.shape[0]
-	random_num = randint(0, num_test - 10)
-	sample_inputs = test_inputs[random_num : 10 + random_num]
-	sample_labels = test_labels[random_num : 10 + random_num]
-	sample_logits = model.call(sample_inputs, sample_labels)
-	visualize_results(sample_inputs, sample_logits, sample_labels, 'cat', 'dog')
-    
-	# Print Current Time and Other Parameters
-	end_time = datetime.datetime.utcnow()
-	print('End Time = ', end_time)
-	print('\nTime Difference = ', end_time - start_time)
-	print('\nLearning Rate = ', model.learning_rate)
-	print('\nRelu Alpha = ', model.relu_alpha)
 
 
 if __name__ == '__main__':
