@@ -17,7 +17,7 @@ import tensorflow as tf
 
 from PIL import Image
 
-from preprocess import import_data, pull_labels, preprocess_input
+from preprocess import import_data, pull_labels, preprocess_input, pull_anchors
 from preprocess import decode_netout, do_nms, draw_boxes, detect_image, detect_video
 
 
@@ -25,7 +25,8 @@ def main():
     
     model_path = '/Users/andrewkent/Library/Mobile Documents/com~apple~CloudDocs/Projects/Deeplearning/Object_Detection/data/yolo_weights.h5'
     image_path = '/Users/andrewkent/Library/Mobile Documents/com~apple~CloudDocs/Projects/Deeplearning/Object_Detection/data/image.jpg'
-    anchors = [[[116,90], [156,198], [373,326]], [[30,61], [62,45], [59,119]], [[10,13], [16,30], [33,23]]]
+    
+    anchors = pull_anchors()
     import_data()
     labels = pull_labels()
 
@@ -52,11 +53,6 @@ def main():
     
     yolo_outputs = darknet.predict(new_image)
     
-    
-    print(len(yolo_outputs))
-    print(yolo_outputs[0].shape)
-    print(yolo_outputs[1].shape)
-    print(yolo_outputs[2].shape)
     
     # Decode the output of the network
     boxes = decode_netout(yolo_outputs, obj_thresh, anchors, image_h, image_w, net_h, net_w)
