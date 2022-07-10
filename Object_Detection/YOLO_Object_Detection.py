@@ -311,35 +311,154 @@ print(os.getcwd())
 
 anchors = [[[116,90], [156,198], [373,326]], [[30,61], [62,45], [59,119]], [[10,13], [16,30], [33,23]]]
 
-image_path = '/Users/andrewkent/Library/Mobile Documents/com~apple~CloudDocs/Projects/Deeplearning/Object_Detection/data/image.jpg'
 
+"""
+
+Now, let's load the image that we'll apply object detection on. To load the image, we'll use the Image module 
+in the package PIL, which is commonly used for image processing. The image is saved as a PIL image in the variable 
+image_pil. We can get the width and the height of the image by accessing the size attribute of the image.
+
+"""
+
+
+image_path = '/Users/andrewkent/Library/Mobile Documents/com~apple~CloudDocs/Projects/Deeplearning/Object_Detection/data/image.jpg'
 image_pil = Image.open(image_path)
 image_w, image_h = image_pil.size
 print("The type of the saved image is {}".format(type(image_pil)))
 plt.imshow(image_pil)
 plt.show()
 
+net_h, net_w = 416, 416
+new_image = preprocess_input(image_pil, net_h, net_w)
+
+"""
+### Exercise (Coding) | Image Preprocessing
+
+The input size of DarkNet is (416, 416), so we need to preprocess our image into the required size by resizing our image, 
+keeping the aspect ratio consistent, and padding the left out areas with the grey color, which is (128,128,128) in RGB. 
+We have implemented the preprocessing for you in the preprocess_input(image, net_h, net_w) function, which takes the orininal 
+image, the target height and width net_h, net_w as input and returns the new image in the required size.
+
+In the chunk below, do the preprocessing by yourself! Plot the new image to check your result
+
+"""
+#%%
+net_h, net_w = 416, 416
+new_image = preprocess_input(image_pil, net_h, net_w)
+plt.imshow(new_image[0])
+plt.show()
+
+darknet = tf.keras.models.load_model(model_path)
+obj_thresh = 0.4
+nms_thresh = 0.45
+
+yolo_outputs = darknet.predict(new_image)
+print(len(yolo_outputs))
+print(yolo_outputs[0].shape)
+print(yolo_outputs[1].shape)
+print(yolo_outputs[2].shape)
+
+# Decode the output of the network
+boxes = decode_netout(yolo_outputs, obj_thresh, anchors, image_h, image_w, net_h, net_w)
+
+# Suppress non-maximal boxes
+boxes = do_nms(boxes, nms_thresh, obj_thresh)
+
+# Draw bounding boxes on the image using labels
+image_detect = draw_boxes(image_pil, boxes, labels) 
+
+plt.figure(figsize=(12,12))
+plt.imshow(image_detect)
+plt.show()
+
+# Decode
+boxes = decode_netout(yolo_outputs, obj_thresh, anchors, image_h, image_w, net_h, net_w)
+plt.figure(figsize=(10,10))
+plt.imshow(draw_boxes(image_pil, boxes, labels))
+plt.show()
+# NMS
+boxes = do_nms(boxes, nms_thresh, obj_thresh)
+plt.figure(figsize=(10,10))
+plt.imshow(draw_boxes(image_pil, boxes, labels))
+plt.show()
+
+def detect_image(image_pil, obj_thresh = 0.4, nms_thresh = 0.45, darknet=darknet, net_h=416, net_w=416, anchors=anchors, labels=labels):
+
+  # Preprocessing
+  image_w, image_h = image_pil.size
+  new_image = preprocess_input(image_pil, net_h, net_w)
+
+  # DarkNet
+  yolo_outputs = darknet.predict(new_image)
+
+  # Decode the output of the network
+  boxes = decode_netout(yolo_outputs, obj_thresh, anchors, image_h, image_w, net_h, net_w)
+
+  # Suppress non-maximal boxes
+  boxes = do_nms(boxes, nms_thresh, obj_thresh)
+
+  # Draw bounding boxes on the image using labels
+  image_detect = draw_boxes(image_pil, boxes, labels) 
+
+  return image_detect
 
 
 
+# Lower objectness threshold -> more object predictions are accepted (more predictions)
+plt.figure(figsize=(12,12))
+plt.imshow(detect_image(image_pil, obj_thresh = 0.2, nms_thresh = 0.45))
+plt.show()
+
+# Higher nms threshold -> Allowing more overlapping bounding boxes (more predictions)
+plt.figure(figsize=(12,12))
+plt.imshow(detect_image(image_pil, obj_thresh = 0.4, nms_thresh = 0.8))
+plt.show()
 
 
 
+def detect_video(video_path, output_path, obj_thresh = 0.4, nms_thresh = 0.45, darknet=darknet, net_h=416, net_w=416, anchors=anchors, labels=labels):
+    vid = cv2.VideoCapture(video_path)
+    if not vid.isOpened():
+        raise IOError("Couldn't open webcam or video")
+    video_FourCC    = int(vid.get(cv2.CAP_PROP_FOURCC))
+    video_FourCC = cv2.VideoWriter_fourcc(*'mp4v')
+    video_fps       = vid.get(cv2.CAP_PROP_FPS)
+    video_size      = (int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                        int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    
+    out = cv2.VideoWriter(output_path, video_FourCC, video_fps, video_size)
 
+    num_frame = 0
+    while vid.isOpened():
+      ret, frame = vid.read()
+      num_frame += 1
+      print("=== Frame {} ===".format(num_frame))
+      if ret:
+          ### YOUR CODE HERE    
+          frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+          image = Image.fromarray(frame)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+          result = detect_image(image)
+          
+          new_frame = np.asarray(result)
+          new_frame = cv2.cvtColor(new_frame, cv2.COLOR_RGB2BGR)
+          ### END CODE   
+          out.write(new_frame)
+      else:
+          break
+    vid.release()
+    out.release()
+    print("New video saved!")
+    
+video_path = '/Users/andrewkent/Library/Mobile Documents/com~apple~CloudDocs/Projects/Deeplearning/Object_Detection/data/video1.mp4'
+output_path = '/Users/andrewkent/Library/Mobile Documents/com~apple~CloudDocs/Projects/Deeplearning/Object_Detection/data/video1_detected.mp4'
+detect_video(video_path, output_path)
+    
+    
+    
+    
+    
+    
 
 
 
