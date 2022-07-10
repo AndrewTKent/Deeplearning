@@ -14,6 +14,7 @@ Email: andrew_kent@brown.edu
 
 import numpy as np
 
+from datetime import datetime
 from PIL import Image
 from copy import deepcopy
 
@@ -22,27 +23,28 @@ import gdown
 import cv2
 
 
-def import_data():
+def import_data(condition):
 
-    # Prepare data
-    DATA_ROOT = '/Users/andrewkent/Library/Mobile Documents/com~apple~CloudDocs/Projects/Deeplearning/Object_Detection/data/'
-    #os.makedirs(DATA_ROOT, exist_ok=True)
-    
-    image_url = 'https://drive.google.com/uc?id=12ZpZ5H0kJIkWk6y4ktGfqR5OTKofL7qw'
-    image_path = os.path.join(DATA_ROOT, 'image.jpg')
-    gdown.download(image_url, image_path, True)
-    
-    image2_url = 'https://drive.google.com/uc?id=1_WpFbGEuS2r19UeP6wekbcF0kb-0nH18'
-    image2_path = os.path.join(DATA_ROOT, 'image2.jpg')
-    gdown.download(image2_url, image2_path, True)
-    
-    video_url = 'https://drive.google.com/uc?id=1xFGjpzhZVYtNor9hJevvxysGESZJIMDz'
-    video_path = os.path.join(DATA_ROOT, 'video1.mp4')
-    gdown.download(video_url, video_path, True)
-    
-    model_url = 'https://drive.google.com/uc?id=19XKJWMKDfDlag2MR8ofjwvxhtr9BxqqN'
-    model_path = os.path.join(DATA_ROOT, 'yolo_weights.h5')
-    gdown.download(model_url, model_path, True)
+    if condition == True:
+
+        DATA_ROOT = '/Users/andrewkent/Library/Mobile Documents/com~apple~CloudDocs/Projects/Deeplearning/Object_Detection/data/'
+        #os.makedirs(DATA_ROOT, exist_ok=True)
+        
+        image_url = 'https://drive.google.com/uc?id=12ZpZ5H0kJIkWk6y4ktGfqR5OTKofL7qw'
+        image_path = os.path.join(DATA_ROOT, 'image.jpg')
+        gdown.download(image_url, image_path, True)
+        
+        image2_url = 'https://drive.google.com/uc?id=1_WpFbGEuS2r19UeP6wekbcF0kb-0nH18'
+        image2_path = os.path.join(DATA_ROOT, 'image2.jpg')
+        gdown.download(image2_url, image2_path, True)
+        
+        video_url = 'https://drive.google.com/uc?id=1xFGjpzhZVYtNor9hJevvxysGESZJIMDz'
+        video_path = os.path.join(DATA_ROOT, 'video1.mp4')
+        gdown.download(video_url, video_path, True)
+        
+        model_url = 'https://drive.google.com/uc?id=19XKJWMKDfDlag2MR8ofjwvxhtr9BxqqN'
+        model_path = os.path.join(DATA_ROOT, 'yolo_weights.h5')
+        gdown.download(model_url, model_path, True)
 
 def pull_labels():
 
@@ -365,7 +367,21 @@ def detect_video(video_path, output_path, obj_thresh, nms_thresh, darknet, net_h
     print("New video saved!")
 
     
+def time(which_time):
     
+    if which_time == 'start':
+        time = datetime.now()
+        print('\nStart Time: {}'.format(time))
+        print('\n')
+        return time
+        
+    if which_time == 'end':
+        time = datetime.now()
+        print('\nEnd Time: {}\n'.format(time))
+        return time
+        
+    else:
+        print('Run Time: {}'.format(which_time))
     
     
     
