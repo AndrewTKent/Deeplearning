@@ -257,8 +257,7 @@ import colorsys
 def draw_boxes(image_, boxes, labels):
     image = image_.copy()
     image_w, image_h = image.size
-    font = ImageFont.truetype(font='/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf',
-                    size=np.floor(3e-2 * image_h + 0.5).astype('int32'))
+    font = ImageFont.truetype(font='/Users/Shared/fonts/truetype/liberation/LiberationMono-Regular.ttf', size=np.floor(3e-2 * image_h + 0.5).astype('int32'))
     thickness = (image_w + image_h) // 300
 
     # Generate colors for drawing bounding boxes.
@@ -342,7 +341,11 @@ image, the target height and width net_h, net_w as input and returns the new ima
 In the chunk below, do the preprocessing by yourself! Plot the new image to check your result
 
 """
-#%%
+
+
+print(os.getcwd())
+print(model_path)
+
 net_h, net_w = 416, 416
 new_image = preprocess_input(image_pil, net_h, net_w)
 plt.imshow(new_image[0])
@@ -353,6 +356,8 @@ obj_thresh = 0.4
 nms_thresh = 0.45
 
 yolo_outputs = darknet.predict(new_image)
+
+
 print(len(yolo_outputs))
 print(yolo_outputs[0].shape)
 print(yolo_outputs[1].shape)
@@ -420,6 +425,7 @@ def detect_video(video_path, output_path, obj_thresh = 0.4, nms_thresh = 0.45, d
     vid = cv2.VideoCapture(video_path)
     if not vid.isOpened():
         raise IOError("Couldn't open webcam or video")
+        
     video_FourCC    = int(vid.get(cv2.CAP_PROP_FOURCC))
     video_FourCC = cv2.VideoWriter_fourcc(*'mp4v')
     video_fps       = vid.get(cv2.CAP_PROP_FPS)
