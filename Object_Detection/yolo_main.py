@@ -27,18 +27,20 @@ def main():
     start_time = time('start')   
     
     # What you would like the model to print out
+    
     print_original_img = False
     print_reshaped_img = False
     print_bounding_boxes = False
-    print_dif_threshholds = True
-    create_bounded_video = False
+    print_dif_threshholds = False
+    create_bounded_video = True
     
     # The path names of the different files needed for this project
     data_path = '/Users/andrewkent/Library/Mobile Documents/com~apple~CloudDocs/Projects/Deeplearning/Object_Detection/data'
     model_path = data_path + '/yolo_weights.h5'
     image_path = data_path + '/image.jpg'
     video_path = data_path + '/video1.mp4'
-    output_path = data_path + '/video1_detected.mp4'
+    video_path = data_path + '/walk_through_nyc.mp4'
+    output_path = data_path + '/walk_through_nyc_detected.mp4'
     
     # Import Data 
     import_data(False)
@@ -102,7 +104,7 @@ def main():
         plt.show()
         
     if create_bounded_video == True:
-        detect_video(video_path, output_path)
+        detect_video(video_path, output_path, obj_thresh, nms_thresh, darknet, net_h, net_w, anchors, labels)
   
     # Print End and Run Time
     end_time = time('end')

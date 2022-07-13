@@ -354,7 +354,7 @@ def detect_video(video_path, output_path, obj_thresh, nms_thresh, darknet, net_h
           frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
           image = Image.fromarray(frame)
 
-          result = detect_image(image)
+          result = detect_image(image, obj_thresh, nms_thresh, darknet, net_h, net_w, anchors, labels)
           
           new_frame = np.asarray(result)
           new_frame = cv2.cvtColor(new_frame, cv2.COLOR_RGB2BGR)
