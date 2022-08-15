@@ -43,7 +43,7 @@ def main():
     output_path = data_path + '/walk_through_nyc_detected.mp4'
     
     # Import Data 
-    import_data(False)
+    import_data(True)
     anchors = pull_anchors()
     labels = pull_labels()
     
