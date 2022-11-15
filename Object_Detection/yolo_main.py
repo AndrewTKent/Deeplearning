@@ -27,7 +27,6 @@ def main():
     start_time = time('start')   
     
     # What you would like the model to print out
-    
     print_original_img = False
     print_reshaped_img = False
     print_bounding_boxes = False
@@ -41,6 +40,9 @@ def main():
     video_path = data_path + '/video1.mp4'
     video_path = data_path + '/walk_through_nyc.mp4'
     output_path = data_path + '/walk_through_nyc_detected.mp4'
+    
+    video_path = data_path + '/nextera.mp4'
+    output_path = data_path + '/nextera_detected.mp4'
     
     # Import Data 
     import_data(True)

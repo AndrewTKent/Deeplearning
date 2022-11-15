@@ -362,6 +362,10 @@ def detect_video(video_path, output_path, obj_thresh, nms_thresh, darknet, net_h
           out.write(new_frame)
       else:
           break
+      
+      if num_frame == 137:
+            break
+      
     vid.release()
     out.release()
     print("New video saved!")
