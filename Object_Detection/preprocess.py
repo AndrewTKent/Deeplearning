@@ -268,39 +268,42 @@ def draw_boxes(image_, boxes, labels):
     np.random.shuffle(colors)  # Shuffle colors to decorrelate adjacent classes.
     np.random.seed(None)  # Reset seed to default.
 
-    for i, box in reversed(list(enumerate(boxes))):
-        c = box.get_label()
-        predicted_class = labels[c]
-        score = box.get_score()
-        top, left, bottom, right = box.ymin, box.xmin, box.ymax, box.xmax
+    if type(boxes) == list:
 
-        label = '{} {:.2f}'.format(predicted_class, score)
-        draw = ImageDraw.Draw(image)
-        label_size = draw.textsize(label, font)
-        #label_size = draw.textsize(label)
-
-        top = max(0, np.floor(top + 0.5).astype('int32'))
-        left = max(0, np.floor(left + 0.5).astype('int32'))
-        bottom = min(image_h, np.floor(bottom + 0.5).astype('int32'))
-        right = min(image_w, np.floor(right + 0.5).astype('int32'))
-        print(label, (left, top), (right, bottom))
-
-        if top - label_size[1] >= 0:
-            text_origin = np.array([left, top - label_size[1]])
-        else:
-            text_origin = np.array([left, top + 1])
-
-        # My kingdom for a good redistributable image drawing library.
-        for i in range(thickness):
+        for i, box in reversed(list(enumerate(boxes))):
+            c = box.get_label()
+            predicted_class = labels[c]
+            score = box.get_score()
+            top, left, bottom, right = box.ymin, box.xmin, box.ymax, box.xmax
+    
+            label = '{} {:.2f}'.format(predicted_class, score)
+            draw = ImageDraw.Draw(image)
+            label_size = draw.textsize(label, font)
+            #label_size = draw.textsize(label)
+    
+            top = max(0, np.floor(top + 0.5).astype('int32'))
+            left = max(0, np.floor(left + 0.5).astype('int32'))
+            bottom = min(image_h, np.floor(bottom + 0.5).astype('int32'))
+            right = min(image_w, np.floor(right + 0.5).astype('int32'))
+            print(label, (left, top), (right, bottom))
+    
+            if top - label_size[1] >= 0:
+                text_origin = np.array([left, top - label_size[1]])
+            else:
+                text_origin = np.array([left, top + 1])
+    
+            # My kingdom for a good redistributable image drawing library.
+            for i in range(thickness):
+                draw.rectangle(
+                    [left + i, top + i, right - i, bottom - i],
+                    outline=colors[c])
             draw.rectangle(
-                [left + i, top + i, right - i, bottom - i],
-                outline=colors[c])
-        draw.rectangle(
-            [tuple(text_origin), tuple(text_origin + label_size)],
-            fill=colors[c])
-        draw.text(text_origin, label, fill=(0, 0, 0), font=font)
-        #draw.text(text_origin, label, fill=(0, 0, 0))
-        del draw
+                [tuple(text_origin), tuple(text_origin + label_size)],
+                fill=colors[c])
+            draw.text(text_origin, label, fill=(0, 0, 0), font=font)
+            #draw.text(text_origin, label, fill=(0, 0, 0))
+            del draw
+            
     return image  
 
 
@@ -362,9 +365,6 @@ def detect_video(video_path, output_path, obj_thresh, nms_thresh, darknet, net_h
           out.write(new_frame)
       else:
           break
-      
-      if num_frame == 137:
-            break
       
     vid.release()
     out.release()
